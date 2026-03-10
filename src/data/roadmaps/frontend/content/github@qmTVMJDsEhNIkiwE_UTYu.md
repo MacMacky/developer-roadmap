@@ -1,13 +1,11 @@
 # GitHub
 
-[GitHub](https://github.com) is a provider of internet hosting for software development and version control using Git. It offers the distributed version control and source code management functionality of Git, plus its own features.
+GitHub is the leading Git repository hosting platform for open-source and private projects. Owned by Microsoft since 2018, it's essential for modern software development, project showcasing, and open-source contributions. Central hub for developer collaboration and code sharing.
 
 Visit the following resources to learn more:
 
-- [@article@GitHub: Quickstart](https://docs.github.com/en/get-started/quickstart/hello-world)
-- [@article@Learn GitHub by doing](https://skills.github.com/)
+- [@roadmap@Visit Dedicated Git & GitHub Roadmap](https://roadmap.sh/git-github)
+- [@official@GitHub: Quickstart](https://docs.github.com/en/get-started/quickstart/hello-world)
+- [@official@Learn GitHub by doing](https://skills.github.com/)
 - [@video@What is GitHub?](https://www.youtube.com/watch?v=w3jLJU7DT5E)
-- [@video@Git vs. GitHub: Whats the difference?](https://www.youtube.com/watch?v=wpISo9TNjfU)
-- [@video@Git and GitHub for Beginners](https://www.youtube.com/watch?v=RGOj5yH7evk)
-- [@video@Git and GitHub - CS50 Beyond 2019](https://www.youtube.com/watch?v=eulnSXkhE7I)
 - [@feed@Explore top posts about GitHub](https://app.daily.dev/tags/github?ref=roadmapsh)

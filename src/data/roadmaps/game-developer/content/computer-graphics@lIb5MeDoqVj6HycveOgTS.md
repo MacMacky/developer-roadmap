@@ -4,4 +4,5 @@ Computer Graphics is a subfield of computer science that studies methods for dig
 
 Visit the following resources to learn more:
 
+- [@article@Introduction to Computer Graphics](https://open.umn.edu/opentextbooks/textbooks/420)
 - [@video@How do Video Game Graphics Work?](https://www.youtube.com/watch?v=C8YtdC8mxTU)

@@ -1,7 +1,8 @@
-# Zero Day
+# Zero-Day Exploits
 
-A **zero-day** is the technique used by an attacker to infiltrate a system that has a vulnerability that is not publicly known. The term "zero day" signifies that the attack occurs before the target becomes aware of the existing vulnerability. In this scenario, the attacker deploys malware prior to the developer or vendor having the chance to issue a patch to rectify the flaw.
+A zero-day exploit refers to a cyber attack that targets a software vulnerability which is unknown to the software vendor or the public. This means there isn't a patch available to fix the vulnerability when the attack occurs. These vulnerabilities are discovered by malicious actors and exploited before developers have a chance to address them, making them particularly dangerous.
 
 Visit the following resources to learn more:
 
-- [@video@Zero-day Vulnerabilities](https://www.youtube.com/watch?v=FDFxGLnZtoY)
+- [@article@What is a Zero-day Attack?](https://www.kaspersky.com/resource-center/definitions/zero-day-exploit)
+- [@video@What is a Zero Day Threat?](https://www.youtube.com/watch?v=w5MV1Jeo76g)

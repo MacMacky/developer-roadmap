@@ -1,5 +1,7 @@
-# typing
+# Typing
 
-typing is a module in Python that provides runtime support for type hints. The typing module defines a standard set of names that can be used to describe types in the Python language. The typing module was added to the standard library in Python 3.5.
+The `typing` module provides support for type hints in Python, allowing developers to specify expected data types for variables, function parameters, and return values. Type hints improve code readability, enable better editor support and static analysis, and help catch potential bugs early without changing how Python executes programs at runtime.
 
-- [@official@typing python](https://docs.python.org/3/library/typing.html)
+Visit the following resources to learn more:
+
+- [@official@Typing Module](https://docs.python.org/3/library/typing.html)

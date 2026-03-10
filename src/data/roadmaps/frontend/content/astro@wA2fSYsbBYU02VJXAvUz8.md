@@ -1,15 +1,9 @@
 # Astro
 
-Astro is an all-in-one web framework for building fast, content-focused websites. Astro combines the power of a modern component-based framework with the performance and flexibility of a static site generator.
-
-- Component Islands: A new web architecture for building faster websites.
-- Server-first API design: Move expensive hydration off of your users’ devices.
-- Zero JS, by default: No JavaScript runtime overhead to slow you down.
-- Edge-ready: Deploy anywhere, even a global edge runtime like Deno or Cloudflare.
-- Customizable: Tailwind, MDX, and 100+ other integrations to choose from.
-- UI-agnostic: Supports React, Preact, Svelte, Vue, Solid, Lit and more.
+Astro is a static site generator supporting multiple frameworks (React, Vue, Svelte) with partial hydration. Renders components to static HTML, sending JavaScript only when needed. Features file-based routing and markdown support. Ideal for blogs, documentation, and marketing sites.
 
 Visit the following resources to learn more:
 
-- [@official@Official Astro Website](https://astro.build/)
-- [@article@Official Astro Docs](https://docs.astro.build/)
+- [@course@Astro Web Framework Crash Course](https://www.youtube.com/watch?v=e-hTm5VmofI)
+- [@official@Astro Website](https://astro.build/)
+- [@article@What is Astro?](https://www.contentful.com/blog/what-is-astro/)

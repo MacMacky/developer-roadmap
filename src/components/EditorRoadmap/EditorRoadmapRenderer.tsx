@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react';
 import './EditorRoadmapRenderer.css';
+
+import { lazy, useCallback, useEffect, useRef } from 'react';
 import {
   renderResourceProgress,
   updateResourceProgress,
@@ -9,11 +10,16 @@ import {
 } from '../../lib/resource-progress';
 import { pageProgressMessage } from '../../stores/page';
 import { useToast } from '../../hooks/use-toast';
-import type { Edge, Node } from 'reactflow';
-import { Renderer } from '../../../editor/renderer';
+import type { Edge, Node } from '@roadmapsh/editor';
 import { slugify } from '../../lib/slugger';
 import { isLoggedIn } from '../../lib/jwt';
 import { showLoginPopup } from '../../lib/popup';
+
+const Renderer = lazy(() =>
+  import('@roadmapsh/editor').then((mod) => ({
+    default: mod.Renderer,
+  })),
+);
 
 export type RoadmapRendererProps = {
   resourceId: string;
@@ -167,6 +173,51 @@ export function EditorRoadmapRenderer(props: RoadmapRendererProps) {
         ? 'pending'
         : 'done';
       updateTopicStatus(nodeId, newStatus);
+      return;
+    }
+
+    if (nodeType === 'checklist-item' && (target.tagName === 'text' || target.tagName === 'tspan')) {
+      e.preventDefault();
+
+      const textElement = target.tagName === 'tspan' ? (target.closest('text') as SVGTextElement) : target;
+      const clickedText = textElement?.textContent?.trim();
+      if (!clickedText) {
+        return;
+      }
+
+      const parentChecklistId = targetGroup?.dataset?.parentId;
+      if (!parentChecklistId) {
+        return;
+      }
+
+      const parentChecklistGroup = roadmapRef.current?.querySelector(
+        `g[data-node-id="${parentChecklistId}"][data-type="checklist"]`
+      );
+      if (!parentChecklistGroup) {
+        return;
+      }
+
+      const labelGroup = parentChecklistGroup.querySelector(
+        'g[data-type="checklist-label"]'
+      );
+      if (!labelGroup) {
+        return;
+      }
+
+      const labelText = labelGroup.querySelector('text')?.textContent?.trim();
+      if (!labelText) {
+        return;
+      }
+
+      window.dispatchEvent(
+        new CustomEvent('roadmap.checklist.click', {
+          detail: {
+            roadmapId: resourceId,
+            labelText,
+            clickedText,
+          },
+        }),
+      );
       return;
     }
 

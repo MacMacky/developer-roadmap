@@ -1,9 +1,11 @@
 # Repo Hosting Services
 
-There are different repository hosting services with the most famous one being GitHub, GitLab and BitBucket. I would recommend creating an account on GitHub because that is where most of the OpenSource work is done and most of the developers are.
+Repository hosting services (GitHub, GitLab, Bitbucket) provide platforms for storing, managing, and collaborating on software projects using Git version control. Facilitate teamwork, code sharing, project tracking, and distributed software development workflows.
 
 Visit the following resources to learn more:
 
-- [@opensource@GitHub: Where the world builds software](https://github.com)
-- [@opensource@GitLab: Iterate faster, innovate together](https://gitlab.com)
-- [@article@BitBucket: The Git solution for professional teams](https://bitbucket.com)
+- [@roadmap@Visit Dedicated Git & GitHub Roadmap](https://roadmap.sh/git-github)
+- [@official@GitHub Website](https://github.com)
+- [@official@GitLab Website](https://about.gitlab.com)
+- [@official@Codeberg Website](https://codeberg.org/)
+- [@official@BitBucket Website](https://bitbucket.com)

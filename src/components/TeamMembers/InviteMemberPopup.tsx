@@ -7,10 +7,11 @@ import { type AllowedRoles, RoleDropdown } from '../CreateTeam/RoleDropdown';
 type InviteMemberPopupProps = {
   onInvited: () => void;
   onClose: () => void;
+  teamId?: string;
 };
 
 export function InviteMemberPopup(props: InviteMemberPopupProps) {
-  const { onClose, onInvited } = props;
+  const { onClose, onInvited, teamId: defaultTeamId } = props;
 
   const popupBodyRef = useRef<HTMLDivElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -18,7 +19,7 @@ export function InviteMemberPopup(props: InviteMemberPopupProps) {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { teamId } = useTeamId();
+  const { teamId = defaultTeamId } = useTeamId();
 
   useEffect(() => {
     emailRef?.current?.focus();
@@ -31,7 +32,7 @@ export function InviteMemberPopup(props: InviteMemberPopupProps) {
 
     const { response, error } = await httpPost(
       `${import.meta.env.PUBLIC_API_URL}/v1-invite-member/${teamId}`,
-      { email, role: selectedRole }
+      { email, role: selectedRole },
     );
 
     if (error || !response) {
@@ -59,7 +60,7 @@ export function InviteMemberPopup(props: InviteMemberPopupProps) {
       <div className="relative h-full w-full max-w-md p-4 md:h-auto">
         <div
           ref={popupBodyRef}
-          className="popup-body relative rounded-lg bg-white p-4 shadow"
+          className="popup-body relative rounded-lg bg-white p-4 shadow-sm"
         >
           <h3 className="mb-1.5 text-xl font-medium sm:text-2xl">
             Invite Member
@@ -75,7 +76,7 @@ export function InviteMemberPopup(props: InviteMemberPopupProps) {
                 type="email"
                 name="invite-member"
                 id="invite-member"
-                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 outline-none placeholder:text-gray-400 focus:border-gray-400"
+                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 outline-hidden placeholder:text-gray-400 focus:border-gray-400"
                 placeholder="Enter email address"
                 required
                 autoFocus
@@ -92,7 +93,7 @@ export function InviteMemberPopup(props: InviteMemberPopupProps) {
               </div>
 
               {error && (
-                <p className=" rounded-md border border-red-300 bg-red-50 p-2 text-sm text-red-700">
+                <p className="rounded-md border border-red-300 bg-red-50 p-2 text-sm text-red-700">
                   {error}
                 </p>
               )}
@@ -103,14 +104,14 @@ export function InviteMemberPopup(props: InviteMemberPopupProps) {
                 type="button"
                 disabled={isLoading}
                 onClick={handleClosePopup}
-                className="flex-grow cursor-pointer rounded-lg bg-gray-200 py-2 text-center"
+                className="grow cursor-pointer rounded-lg bg-gray-200 py-2 text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isLoading || !email}
-                className="flex-grow cursor-pointer rounded-lg bg-black py-2 text-center text-white disabled:opacity-40"
+                className="grow cursor-pointer rounded-lg bg-black py-2 text-center text-white disabled:opacity-40"
               >
                 {isLoading ? 'Please wait ..' : 'Invite'}
               </button>

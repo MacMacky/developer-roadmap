@@ -1,13 +1,10 @@
 # Next.js
 
-Next.js is an open-source development framework built on top of Node.js
-enabling React based web applications functionalities such as server-side
-rendering and generating static websites.
+Next.js is a React framework supporting server-side rendering and static site generation. Features automatic code splitting, file-based routing, CSS support, API routes, and optimized performance. Includes live updates, smart preloading, and easy deployment. Ideal for SEO-friendly applications.
 
 Visit the following resources to learn more:
 
-- [@official@Official Website](https://nextjs.org/)
-- [@official@Official Docs for Getting Started](https://nextjs.org/docs/getting-started)
-- [@article@Mastering Next.js](https://masteringnextjs.com/)
+- [@official@Next.js Website](https://nextjs.org/)
+- [@article@Visit the Dedicated Next.js Roadmap](https://roadmap.sh/nextjs)
 - [@video@Next.js for Beginners - Full Course at freeCodeCamp YouTube Channel](https://youtu.be/1WmNXEVia8I)
 - [@feed@Explore top posts about JavaScript](https://app.daily.dev/tags/javascript?ref=roadmapsh)

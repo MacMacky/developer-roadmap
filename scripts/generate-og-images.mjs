@@ -239,21 +239,21 @@ async function generateGuideOpenGraph() {
   for (const guide of allGuides) {
     const author = allAuthors.find((author) => author.id === guide.authorId);
     const image =
-      author?.imageUrl || 'https://roadmap.sh/images/default-avatar.png';
+      author?.imageUrl || 'https://roadmap.sh/img/default-avatar.png';
     const isExternalImage = image?.startsWith('http');
-    let authorImageExtention = '';
+    let authorImageExtension = '';
     let authorAvatar;
     if (!isExternalImage) {
       authorAvatar = await fs.readFile(path.join(ALL_AUTHOR_IMAGE_DIR, image));
-      authorImageExtention = image?.split('.')[1];
+      authorImageExtension = image?.split('.')[1];
     }
 
-    const template = getGuideTemplate({
+    let template = getGuideTemplate({
       ...guide,
       authorName: author.name,
       authorAvatar: isExternalImage
         ? image
-        : `data:image/${authorImageExtention};base64,${authorAvatar.toString('base64')}`,
+        : `data:image/${authorImageExtension};base64,${authorAvatar.toString('base64')}`,
     });
     if (
       hasSpecialCharacters(guide.title) ||

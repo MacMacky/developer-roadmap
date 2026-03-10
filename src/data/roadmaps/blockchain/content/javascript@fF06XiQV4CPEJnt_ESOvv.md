@@ -1,14 +1,13 @@
-# JavaScript
+# JavaScript for dApps
 
-JavaScript, often abbreviated JS, is a programming language that is one of the core technologies of the World Wide Web, alongside HTML and CSS. It lets us add interactivity to pages e.g. you might have seen sliders, alerts, click interactions, and popups etc on different websites -- all of that is built using JavaScript. Apart from being used in the browser, it is also used in other non-browser environments as well such as Node.js for writing server-side code in JavaScript, Electron for writing desktop applications, React Native for mobile applications and so on.
+JavaScript is a programming language that makes websites interactive. It's what allows buttons to work, animations to play, and data to be updated without reloading the page. For decentralized applications (dApps), JavaScript is essential because it's the primary language used to build the front-end, or user interface, that users interact with. It also connects the front-end to the blockchain, allowing users to send transactions and retrieve data from the decentralized network.
 
 Visit the following resources to learn more:
 
-- [@article@W3Schools – JavaScript Tutorial](https://www.w3schools.com/js/)
+- [@roadmap@Visit Dedicated JavaScript Roadmap](https://roadmap.sh/javascript)
+- [@opensource@You Dont Know JS Yet](https://github.com/getify/You-Dont-Know-JS)
 - [@article@The Modern JavaScript Tutorial](https://javascript.info/)
 - [@article@Eloquent Javascript - Book](https://eloquentjavascript.net/)
-- [@opensource@You Dont Know JS Yet (book series) ](https://github.com/getify/You-Dont-Know-JS)
 - [@video@JavaScript Crash Course for Beginners](https://youtu.be/hdI2bqOjy3c)
-- [@video@Node.js Crash Course](https://www.youtube.com/watch?v=fBNz5xF-Kx4)
 - [@video@Node.js Tutorial for Beginners](https://www.youtube.com/watch?v=TlB_eWDSMt4)
 - [@feed@Explore top posts about JavaScript](https://app.daily.dev/tags/javascript?ref=roadmapsh)

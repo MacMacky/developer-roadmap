@@ -1,8 +1,9 @@
 # react-router
 
-There used to be Remix in this list but they announced to merge Remix into react-router after v7.
+React Router enables client-side routing in React applications, creating single-page apps with multiple views. Handles URL management, provides route definition components, and supports lazy loading and route guards. The standard navigation solution for React applications.
 
 Visit the following resources to learn more:
 
-- [@official@Official Website](https://remix.run/)
-- [@official@Official Docs for Getting Started](https://remix.run/docs/en/v1#getting-started)
+- [@official@React Router Website](https://reactrouter.com/en/main)
+- [@article@A Complete Guide to Routing in React](https://hygraph.com/blog/routing-in-react)
+- [@video@React Router - Complete tutorial](https://www.youtube.com/watch?v=oTIJunBa6MA)

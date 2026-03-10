@@ -4,14 +4,15 @@ JavaScript Errors are used by JavaScript to inform developers about various issu
 
 JavaScript has six types of errors that may occur during the execution of the script:
 
-- EvalError
-- RangeError
-- ReferenceError
-- SyntaxError
-- TypeError
-- URIError
+*   EvalError
+*   RangeError
+*   ReferenceError
+*   SyntaxError
+*   TypeError
+*   URIError
 
 Visit the following resources to learn more:
 
 - [@article@Error Types in JavaScript](https://blog.bitsrc.io/types-of-native-errors-in-javascript-you-must-know-b8238d40e492)
+- [@article@JavaScript error reference - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors)
 - [@feed@Explore top posts about JavaScript](https://app.daily.dev/tags/javascript?ref=roadmapsh)

@@ -3,8 +3,9 @@ import { DashboardCustomProgressCard } from './DashboardCustomProgressCard';
 import { DashboardCardLink } from './DashboardCardLink';
 import { useState } from 'react';
 import { CreateRoadmapModal } from '../CustomRoadmap/CreateRoadmap/CreateRoadmapModal';
-import { Simulate } from 'react-dom/test-utils';
-import {Bot, BrainCircuit, Map, PencilRuler} from 'lucide-react';
+import {
+  BrainCircuit, PencilRuler
+} from 'lucide-react';
 
 type ListDashboardCustomProgressProps = {
   progresses: UserProgress[];
@@ -40,15 +41,24 @@ export function ListDashboardCustomProgress(
     <>
       {customRoadmapModal}
 
-      <h2 className="mb-2 mt-6 text-xs uppercase text-gray-400">
-        {isAIGeneratedRoadmaps ? 'AI Generated Roadmaps' : 'Custom Roadmaps'}
-      </h2>
+      <div className="mb-2 mt-6 flex items-center justify-between gap-2">
+        <h2 className="text-xs uppercase text-gray-400">
+          {isAIGeneratedRoadmaps ? 'My AI Roadmaps' : 'My Custom Roadmaps'}
+        </h2>
+
+        <a
+          href="/community"
+          className="rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-300 hover:text-black"
+        >
+          Community Roadmaps
+        </a>
+      </div>
 
       {!isLoading && progresses.length === 0 && isAIGeneratedRoadmaps && (
         <DashboardCardLink
           className="mt-0"
           icon={BrainCircuit}
-          href="/ai"
+          href="/ai-roadmaps"
           title="Generate Roadmaps with AI"
           description="You can generate your own roadmap with AI"
         />
@@ -84,7 +94,7 @@ export function ListDashboardCustomProgress(
 
             <a
               className="flex min-h-[80px] items-center justify-center rounded-lg border border-dashed border-gray-300 bg-white p-4 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-600"
-              href={'/ai'}
+              href={'/ai-roadmaps'}
               onClick={(e) => {
                 if (!isAIGeneratedRoadmaps) {
                   e.preventDefault();

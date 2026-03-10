@@ -1,3 +1,13 @@
 # Caching
 
-Caching is a technique used in computing to store and retrieve frequently accessed data quickly, reducing the need to fetch it from the original, slower source repeatedly. It involves keeping a copy of data in a location that's faster to access than its primary storage. Caching can occur at various levels, including browser caching, application-level caching, and database caching. It significantly improves performance by reducing latency, decreasing network traffic, and lowering the load on servers or databases. Common caching strategies include time-based expiration, least recently used (LRU) algorithms, and write-through or write-back policies. While caching enhances speed and efficiency, it also introduces challenges in maintaining data consistency and freshness. Effective cache management is crucial in balancing performance gains with the need for up-to-date information in dynamic systems.
+Caching stores frequently accessed data in faster locations to improve performance by reducing latency and server load. It operates at browser, application, and database levels using strategies like LRU and time-based expiration. Balances speed gains with data consistency challenges.
+
+Visit the following resources to learn more:
+
+- [@article@What is Caching - AWS](https://aws.amazon.com/caching/)
+- [@article@Caching - Cloudflare](https://www.cloudflare.com/learning/cdn/what-is-caching/)
+- [@article@Caching Strategies and How to Choose the Right One](https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/)
+- [@article@Top Caching Strategies Explained](https://blog.bytebytego.com/p/top-caching-strategies)
+- [@video@Cache Systems Every Developer Should Know](https://www.youtube.com/watch?v=dGAgxozNWFE)
+- [@video@Caching Complete Tutorial for Beginners](https://www.youtube.com/watch?v=1XJG34mewts)
+- [@course@Redis University - Introduction to Redis Data Structures](https://redis.io/university/courses/ru101/)

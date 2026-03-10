@@ -4,5 +4,6 @@ An iterator is an object that contains a countable number of values. An iterator
 
 Visit the following resources to learn more:
 
-- [@article@Iterators in Python](https://www.w3schools.com/python/python_iterators.asp)
+- [@official@Python Official Documentation on Iterators](https://docs.python.org/3/tutorial/classes.html#iterators)
 - [@article@Python Iterators](https://www.programiz.com/python-programming/iterator)
+- [@article@Iterators and Iterables in Python](https://realpython.com/python-iterators-iterables/)

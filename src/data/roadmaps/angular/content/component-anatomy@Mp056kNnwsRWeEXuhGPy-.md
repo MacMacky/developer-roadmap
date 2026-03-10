@@ -11,5 +11,5 @@ Every component must have:
 
 Visit the following resources to learn more:
 
-- [@official@Anatomy of a component](https://angular.dev/guide/components)
-
+- [@official@Anatomy of a Component](https://angular.dev/guide/components)
+- [@official@Anatomy of a Component - Interactive Tutorial](https://angular.dev/tutorials/learn-angular/1-components-in-angular)

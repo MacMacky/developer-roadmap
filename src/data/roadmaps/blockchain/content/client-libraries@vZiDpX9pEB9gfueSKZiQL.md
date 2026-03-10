@@ -1,7 +1,8 @@
-# Client libraries
+# Client Libraries
 
-You don't need to write every smart contract in your project from scratch. There are many open source smart contract libraries available that provide reusable building blocks for your project that can save you from having to reinvent the wheel.
+Client libraries are collections of pre-written code that simplify how applications interact with a blockchain. They provide functions and tools to easily connect to a blockchain network, send transactions, retrieve data, and manage smart contracts, abstracting away the complexities of low-level blockchain communication. This allows developers to focus on building the application's logic rather than dealing with the intricacies of blockchain protocols.
 
 Visit the following resources to learn more:
 
-- [@official@Viem library with great TypeScript support](https://viem.sh)
+- [@official@Viem Library](https://viem.sh)
+- [@article@Client Libraries](https://docs.waves.tech/en/building-apps/waves-api-and-sdk/client-libraries/)

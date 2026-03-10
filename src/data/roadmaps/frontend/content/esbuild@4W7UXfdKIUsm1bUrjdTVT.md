@@ -1,11 +1,10 @@
 # esbuild
 
-Our current build tools for the web are 10-100x slower than they could be. The main goal of the esbuild bundler project is to bring about a new era of build tool performance, and create an easy-to-use modern bundler along the way.
+esbuild is an extremely fast JavaScript bundler and minifier written in Go. Handles modern JavaScript, TypeScript, and JSX with near-instant bundling. Simple API with excellent performance for development and as foundation for other tools. Trades some advanced features for speed.
 
 Visit the following resources to learn more:
 
-- [@article@Esbuild Official Website](https://esbuild.github.io/)
-- [@article@Esbuild Documentation](https://esbuild.github.io/api/)
-- [@video@Why are People Obsessed with esbuild?](https://www.youtube.com/watch?v=9XS_RA6zyyU)
+- [@course@Let's Learn esbuild! (with Sunil Pai) — Learn With Jason](https://www.youtube.com/watch?v=KLdF1yu_bmI)
+- [@official@Esbuild Website](https://esbuild.github.io/)
 - [@video@What Is ESBuild?](https://www.youtube.com/watch?v=ZY8Vu8cbWF0)
 - [@feed@Explore top posts about Web Development](https://app.daily.dev/tags/webdev?ref=roadmapsh)

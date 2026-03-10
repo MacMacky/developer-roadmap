@@ -3,6 +3,7 @@ import {
   Globe,
   LinkedinIcon,
   Mail,
+  Pencil,
   Twitter,
 } from 'lucide-react';
 import type { GetPublicProfileResponse } from '../../api/user';
@@ -15,19 +16,20 @@ type UserPublicProfileHeaderProps = {
 export function UserPublicProfileHeader(props: UserPublicProfileHeaderProps) {
   const { userDetails } = props;
 
-  const { name, links, publicConfig, avatar, email } = userDetails;
+  const { name, links, publicConfig, avatar, email, isOwnProfile } =
+    userDetails;
   const { headline, isAvailableForHire, isEmailVisible } = publicConfig!;
 
   return (
-    <div className="container flex items-center gap-6 rounded-xl border bg-white p-8">
+    <div className="container relative flex items-center gap-6 rounded-xl border bg-white p-8">
       <img
         src={
           avatar
             ? `${import.meta.env.PUBLIC_AVATAR_BASE_URL}/${avatar}`
-            : '/images/default-avatar.png'
+            : '/img/default-avatar.png'
         }
         alt={name}
-        className="h-32 w-32 object-cover rounded-full"
+        className="h-32 w-32 rounded-full object-cover"
       />
 
       <div>
@@ -51,6 +53,16 @@ export function UserPublicProfileHeader(props: UserPublicProfileHeaderProps) {
           {isEmailVisible && <UserLink href={`mailto:${email}`} icon={Mail} />}
         </div>
       </div>
+
+      {isOwnProfile && (
+        <a
+          href="/account/update-profile"
+          className="absolute right-4 top-4 flex items-center gap-1.5 text-sm text-gray-500 hover:text-black"
+        >
+          <Pencil className="h-3 w-3 stroke-2" />
+          Edit Profile
+        </a>
+      )}
     </div>
   );
 }
@@ -68,6 +80,7 @@ export function UserLink(props: UserLinkProps) {
       target="_blank"
       href={href}
       className="flex h-6 w-6 items-center justify-center rounded-md border"
+      rel="nofollow noopener noreferrer"
     >
       <Icon className="h-3.5 w-3.5 shrink-0 stroke-2" />
     </a>

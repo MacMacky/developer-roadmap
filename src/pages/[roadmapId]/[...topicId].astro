@@ -1,37 +1,124 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
+import MarkdownIt from 'markdown-it-async';
+import { fileURLToPath } from 'node:url';
 import {
-  getRoadmapTopicFiles,
-  type RoadmapTopicFileType,
-} from '../../lib/roadmap-topic';
+  getOfficialGuide,
+  type OfficialGuideResponse,
+} from '../../queries/official-guide';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { GuideContent } from '../../components/Guide/GuideContent';
+import { getOpenGraphImageUrl } from '../../lib/open-graph';
+import {
+  getOfficialRoadmapTopic,
+  prepareOfficialRoadmapTopicContent,
+} from '../../queries/official-roadmap-topic';
 
-export async function getStaticPaths() {
-  const topicPathMapping = await getRoadmapTopicFiles();
+export const prerender = false;
 
-  return Object.keys(topicPathMapping).map((topicSlug) => {
-    const topicDetails = topicPathMapping[topicSlug];
-    const roadmapId = topicDetails.roadmapId;
-    const topicId = topicSlug.replace(`/${roadmapId}/`, '');
+const { topicId, roadmapId } = Astro.params;
 
-    return {
-      params: {
-        topicId,
-        roadmapId,
-      },
-      props: topicDetails,
-    };
-  });
+if (!topicId || !roadmapId) {
+  Astro.response.status = 404;
+  Astro.response.statusText = 'Not found';
+
+  return Astro.rewrite('/404');
 }
 
-export const partial = true;
+const isTopic = topicId?.includes('@') || topicId?.includes('/');
+let gitHubUrl = '';
+let htmlContent = '';
+let guide: OfficialGuideResponse | null = null;
+let permalink = '';
+let ogImageUrl = '';
 
-const { topicId } = Astro.params;
-const { file, url, roadmapId, roadmap, heading } =
-  Astro.props as RoadmapTopicFileType;
+if (isTopic) {
+  // Handle nested paths by joining the segments
+  const topicPath = Array.isArray(topicId) ? topicId.join('/') : topicId;
 
-const fileWithoutBasePath = file.file?.replace(/.+?\/src\/data/, '/src/data');
-const gitHubUrl = `https://github.com/kamranahmedse/developer-roadmap/tree/master${fileWithoutBasePath}`;
+  // Get the project root directory
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  // hack to make it work. TODO: Fix
+  const projectRoot = path.resolve(__dirname, '../../..').replace(/dist$/, '');
+
+  // Construct the path to the markdown file
+  let contentPath = path.join(
+    projectRoot,
+    'src',
+    'data',
+    'roadmaps',
+    roadmapId,
+    'content',
+    `${topicPath}.md`,
+  );
+
+  const nodeId = topicPath.split('@')?.[1];
+  if (!nodeId) {
+    Astro.response.status = 404;
+    Astro.response.statusText = 'Not found';
+    return Astro.rewrite('/404');
+  }
+
+  const topic = await getOfficialRoadmapTopic({
+    roadmapSlug: roadmapId,
+    nodeId,
+  });
+
+  if (topic) {
+    const md = MarkdownIt();
+    htmlContent = await md.renderAsync(
+      prepareOfficialRoadmapTopicContent(topic),
+    );
+  } else {
+    htmlContent = '<h1>Not found</h1>';
+  }
+
+  const fileWithoutBasePath = contentPath.replace(
+    /.+?\/src\/data/,
+    '/src/data',
+  );
+  gitHubUrl = `https://github.com/kamranahmedse/developer-roadmap/tree/master${fileWithoutBasePath}`;
+} else {
+  guide = await getOfficialGuide(topicId, roadmapId);
+  if (!guide) {
+    Astro.response.status = 404;
+    Astro.response.statusText = 'Not found';
+    return Astro.rewrite('/404');
+  }
+
+  permalink = `/${roadmapId}/${topicId}`;
+  ogImageUrl =
+    guide?.featuredImage ||
+    getOpenGraphImageUrl(
+      {
+        group: 'guide',
+        resourceId: topicId,
+      },
+      {
+        roadmapId,
+      },
+    );
+}
 ---
 
-<div data-github-url={gitHubUrl}></div>
-
-<file.Content />
+{
+  isTopic ? (
+    <>
+      <div data-github-url={gitHubUrl} />
+      <Fragment set:html={htmlContent} />
+    </>
+  ) : (
+    <BaseLayout
+      title={guide?.seo?.metaTitle ?? guide?.title ?? ''}
+      description={guide?.seo?.metaDescription ?? guide?.description ?? ''}
+      permalink={permalink}
+      ogImageUrl={ogImageUrl}
+    >
+      <GuideContent guide={guide!} client:load />
+      <div slot='changelog-banner' />
+    </BaseLayout>
+  )
+}

@@ -4,7 +4,7 @@ svg text tspan {
   text-rendering: optimizeSpeed;
 }
 
-code {
+code:not(pre code) {
   background: #1e1e3f;
   color: #9efeff;
   padding: 3px 5px;
@@ -143,5 +143,5 @@ svg .removed path {
 }
 
 /*.clickable-group:hover {*/
-/*  cursor: url(/images/cursors/add.svg) 5 5, move;*/
+/*  cursor: url(/img/cursors/add.svg) 5 5, move;*/
 /*}*/

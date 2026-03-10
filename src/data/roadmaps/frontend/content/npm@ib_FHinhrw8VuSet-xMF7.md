@@ -1,12 +1,12 @@
 # npm
 
-npm is a package manager for the JavaScript programming language maintained by npm, Inc. npm is the default package manager for the JavaScript runtime environment Node.js.
+npm (Node Package Manager) is the primary JavaScript package manager for finding, sharing, and managing code dependencies. Uses package.json to track project requirements and enables consistent builds across environments. Remains the most popular choice despite alternatives like Yarn and pnpm.
 
 Visit the following resources to learn more:
 
-- [@article@Modern JavaScript for Dinosaurs](https://peterxjang.com/blog/modern-javascript-explained-for-dinosaurs.html)
-- [@article@An Absolute Beginners Guide to Using npm](https://nodesource.com/blog/an-absolute-beginners-guide-to-using-npm/)
+- [@official@NPM Website](https://www.npmjs.com/)
+- [@official@NPM Documentation](https://docs.npmjs.com/)
 - [@opensource@How to NPM](https://github.com/workshopper/how-to-npm)
-- [@video@NPM tutorial for Beginners](https://www.youtube.com/watch?v=2V1UUhBJ62Y)
-- [@video@NPM Crash Course](https://www.youtube.com/watch?v=jHDhaSSKmB0)
+- [@article@Modern JavaScript for Dinosaurs](https://peterxjang.com/blog/modern-javascript-explained-for-dinosaurs.html)
+- [@video@NPM Tutorial for Beginners](https://www.youtube.com/watch?v=2V1UUhBJ62Y)
 - [@feed@Explore top posts about NPM](https://app.daily.dev/tags/npm?ref=roadmapsh)

@@ -1,15 +1,12 @@
 # GitHub
 
-GitHub is a provider of Internet hosting for software development and version control using Git. It offers the distributed version control and source code management functionality of Git, plus its own features.
+GitHub is a web-based platform built on top of Git that provides version control, collaboration tools, and project management features for software development. It enables developers to host Git repositories, collaborate on code through pull requests, and review and track changes. GitHub also offers additional features like issue tracking, continuous integration, automated workflows, and documentation hosting. With its social coding environment, GitHub fosters open-source contributions and team collaboration, making it a central hub for many software development projects.
 
 Visit the following resources to learn more:
 
-- [@opensource@GitHub Website](https://github.com)
-- [@article@GitHub Documentation](https://docs.github.com/en/get-started/quickstart)
-- [@article@How to Use Git in a Professional Dev Team](https://ooloo.io/project/github-flow)
+- [@roadmap@Visit Dedicated Git & GitHub Roadmap](https://roadmap.sh/git-github)
+- [@official@GitHub](https://github.com)
+- [@official@GitHub Documentation](https://docs.github.com/en/get-started/quickstart)
+- [@article@Comprehensive Guide to GitHub for Data Scientists](https://towardsdatascience.com/comprehensive-guide-to-github-for-data-scientist-d3f71bd320da/?utm_source=roadmap&utm_medium=Referral&utm_campaign=TDS+roadmap+integration)
 - [@video@What is GitHub?](https://www.youtube.com/watch?v=w3jLJU7DT5E)
-- [@video@Git vs. GitHub: Whats the difference?](https://www.youtube.com/watch?v=wpISo9TNjfU)
-- [@video@Git and GitHub for Beginners](https://www.youtube.com/watch?v=RGOj5yH7evk)
-- [@video@Git and GitHub - CS50 Beyond 2019](https://www.youtube.com/watch?v=eulnSXkhE7I)
-- [@article@Learn Git Branching](https://learngitbranching.js.org/?locale=en_us)
 - [@feed@Explore top posts about GitHub](https://app.daily.dev/tags/github?ref=roadmapsh)

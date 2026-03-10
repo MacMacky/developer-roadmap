@@ -1,9 +1,9 @@
 # React Native
 
-React Native is a popular JavaScript-based mobile app framework that allows you to build natively-rendered mobile apps for iOS and Android. The framework lets you create an application for various platforms by using the same codebase.
+React Native enables building native mobile apps for iOS and Android using JavaScript and React. Compiles to native components for authentic look and performance. Features code sharing, hot reloading, and device API access. Ideal for React developers transitioning to mobile development.
 
 Visit the following resources to learn more:
 
-- [@official@Official Website](https://reactnative.dev/)
-- [@official@Official Getting Started to React Native](https://reactnative.dev/docs/getting-started)
+- [@roadmap@Visit Dedicated React Roadmap](https://roadmap.sh/react-native)
+- [@official@React Native Website](https://reactnative.dev/)
 - [@feed@Explore top posts about React](https://app.daily.dev/tags/react?ref=roadmapsh)

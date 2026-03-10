@@ -4,34 +4,35 @@ The **Factory Pattern** is part of the Creational Design Patterns. This pattern 
 
 Here is a basic example of the Factory Pattern:
 
-```java
-public abstract class Animal {
-    public abstract String makeSound();
-}
-
-public class Dog extends Animal {
-    @override
-    public String makeSound() {
-        return "Woof";
+    public abstract class Animal {
+        public abstract String makeSound();
     }
-}
-
-public class Cat extends Animal {
-    @override
-    public String makeSound() {
-        return "Meow";
-    }
-}
-
-public class AnimalFactory {
-    public Animal createAnimal(String type) {
-        if ("Dog".equals(type)) {
-            return new Dog();
-        } else if ("Cat".equals(type)) {
-            return new Cat();
+    
+    public class Dog extends Animal {
+        @override
+        public String makeSound() {
+            return "Woof";
         }
-        return null;
     }
-}
-```
-In the code above, `AnimalFactory` is the factory class responsible to create and return instances of `Dog` and `Cat` classes.
+    
+    public class Cat extends Animal {
+        @override
+        public String makeSound() {
+            return "Meow";
+        }
+    }
+    
+    public class AnimalFactory {
+        public Animal createAnimal(String type) {
+            if ("Dog".equals(type)) {
+                return new Dog();
+            } else if ("Cat".equals(type)) {
+                return new Cat();
+            }
+            return null;
+        }
+    }
+
+Visit the following resources to learn more:
+
+- [@official@Android: Factory Pattern](https://developer.android.com/guide/components/intents-filters#factory)

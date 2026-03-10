@@ -1,5 +1,8 @@
 # black
 
-black is a code formatter for Python. It is a tool that automatically formats Python code to adhere to the PEP 8 style guide. It is a great tool to use in your Python projects to ensure that your code is formatted consistently and correctly.
+Black is a python code formatter that automatically formats code according to a consistent style. By removing formatting decisions from developers, Black helps maintain uniform codebases, improves readability, and reduces time spent on style discussions during code reviews.
 
-- [@official@black documentation](https://black.readthedocs.io/en/stable/)
+Visit the following resources to learn more:
+
+- [@official@Getting Started with Black](https://black.readthedocs.io/en/stable/getting_started.html)
+- [@official@Black Documentation](https://black.readthedocs.io/en/stable/)

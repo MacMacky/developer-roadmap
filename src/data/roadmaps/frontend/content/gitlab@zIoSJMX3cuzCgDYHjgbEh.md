@@ -1,10 +1,10 @@
 # GitLab
 
-[GitLab](https://gitlab.com) is a provider of internet hosting for software development and version control using Git. It offers the distributed version control and source code management functionality of Git, plus its own features.
+GitLab is a comprehensive DevOps platform offering integrated development tools including Git hosting, CI/CD, issue tracking, and deployment. Available as cloud service or self-hosted solution. Popular with enterprises seeking unified development workflows and built-in automation capabilities.
 
 Visit the following resources to learn more:
 
-- [@article@GitLab Documentation](https://docs.gitlab.com/)
-- [@opensource@GitLab Website](https://gitlab.com/)
+- [@official@GitLab Website](https://gitlab.com/)
+- [@official@GitLab Documentation](https://docs.gitlab.com/)
 - [@article@Development: Connect git to GitLab for Small Projects](https://thenewstack.io/development-connect-git-to-gitlab-for-small-projects/)
 - [@feed@Explore top posts about GitLab](https://app.daily.dev/tags/gitlab?ref=roadmapsh)

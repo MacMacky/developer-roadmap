@@ -1,10 +1,13 @@
 # Version Control Systems
 
-Version Control Systems (VCS) are tools that manage and track changes to code or documents over time, allowing multiple users to collaborate on a project efficiently. They record every change made to files, enabling developers to revert to previous versions, compare changes, and maintain a history of modifications. VCS can be centralized, where the repository is hosted on a central server (e.g., Subversion), or distributed, where each user has a complete copy of the repository (e.g., Git, Mercurial). Version control facilitates collaboration, enhances code integrity, and supports continuous integration by enabling smooth management of concurrent changes and resolving conflicts.
+Version Control Systems (VCS) manage and track code changes over time, enabling efficient collaboration. Record file changes, allow reverting to previous versions, and maintain modification history. Can be centralized (Subversion) or distributed (Git, Mercurial) for collaboration and code integrity.
 
 Visit the following resources to learn more:
 
-- [@roadmap@Learn Git & GitHub](https://roadmap.sh/git-github)
-- [@article@Git](https://git-scm.com/)
+- [@roadmap@Visit Dedicated Git & GitHub Roadmap](https://roadmap.sh/git-github)
+- [@official@Git Documentation](https://git-scm.com/doc)
 - [@article@What is Version Control?](https://www.atlassian.com/git/tutorials/what-is-version-control)
+- [@article@What is Version Control? - GitLab](https://about.gitlab.com/topics/version-control/)
+- [@article@Comparing Workflows - Centralized vs Distributed](https://www.atlassian.com/git/tutorials/comparing-workflows)
 - [@video@Version Control System (VCS) - Everything you need to know](https://www.youtube.com/watch?v=SVkuliabq4g)
+- [@video@Git for Beginners - Git & GitHub Tutorial](https://www.youtube.com/watch?v=8JJ101D3knE)

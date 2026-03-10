@@ -1,10 +1,7 @@
-import type { UserProgress } from '../TeamProgress/TeamProgressPage';
-import { DashboardCustomProgressCard } from './DashboardCustomProgressCard';
 import { DashboardCardLink } from './DashboardCardLink';
-import { useState } from 'react';
-import { CreateRoadmapModal } from '../CustomRoadmap/CreateRoadmap/CreateRoadmapModal';
-import { Simulate } from 'react-dom/test-utils';
-import { Bot, BrainCircuit, Map, PencilRuler } from 'lucide-react';
+import {
+  BrainCircuit
+} from 'lucide-react';
 
 type DashboardAiRoadmapsProps = {
   roadmaps: {
@@ -20,15 +17,22 @@ export function DashboardAiRoadmaps(props: DashboardAiRoadmapsProps) {
 
   return (
     <>
-      <h2 className="mb-2 mt-6 text-xs uppercase text-gray-400">
-        AI Generated Roadmaps
-      </h2>
+      <div className="mb-2 mt-6 flex items-center justify-between gap-2">
+        <h2 className="text-xs uppercase text-gray-400">My AI Roadmaps</h2>
+
+        <a
+          href="/ai-roadmaps/explore"
+          className="rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-300 hover:text-black"
+        >
+          AI Generated Roadmaps
+        </a>
+      </div>
 
       {!isLoading && roadmaps.length === 0 && (
         <DashboardCardLink
           className="mt-0"
           icon={BrainCircuit}
-          href="/ai"
+          href="/ai-roadmaps"
           title="Generate Roadmaps with AI"
           description="You can generate your own roadmap with AI"
         />
@@ -47,8 +51,9 @@ export function DashboardAiRoadmaps(props: DashboardAiRoadmapsProps) {
           <>
             {roadmaps.map((roadmap) => (
               <a
-                href={`/ai/${roadmap.slug}`}
-                className="relative rounded-md border bg-white p-2.5 text-left text-sm shadow-sm truncate hover:border-gray-400 hover:bg-gray-50"
+                key={roadmap.id}
+                href={`/ai-roadmaps/${roadmap.slug}`}
+                className="relative truncate rounded-md border bg-white p-2.5 text-left text-sm shadow-xs hover:border-gray-400 hover:bg-gray-50"
               >
                 {roadmap.title}
               </a>
@@ -56,7 +61,7 @@ export function DashboardAiRoadmaps(props: DashboardAiRoadmapsProps) {
 
             <a
               className="flex items-center justify-center rounded-lg border border-dashed border-gray-300 bg-white p-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-600"
-              href={'/ai'}
+              href={'/ai-roadmaps'}
             >
               + Generate New
             </a>
@@ -69,9 +74,7 @@ export function DashboardAiRoadmaps(props: DashboardAiRoadmapsProps) {
 
 type CustomProgressCardSkeletonProps = {};
 
-function RoadmapCardSkeleton(
-  props: CustomProgressCardSkeletonProps,
-) {
+function RoadmapCardSkeleton(props: CustomProgressCardSkeletonProps) {
   return (
     <div className="h-[42px] w-full animate-pulse rounded-md bg-gray-200" />
   );

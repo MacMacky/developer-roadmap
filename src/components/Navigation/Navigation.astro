@@ -1,11 +1,12 @@
 ---
-import { Menu } from 'lucide-react';
+import { Fragment } from 'react';
+import { AccountStreak } from '../AccountStreak/AccountStreak';
 import Icon from '../AstroIcon.astro';
 import { NavigationDropdown } from '../NavigationDropdown';
+import { RoadmapDropdownMenu } from '../TopNavDropdowns/RoadmapDropdownMenu';
+import { AIDropdownMenu } from '../TopNavDropdowns/AIDropdownMenu';
 import { AccountDropdown } from './AccountDropdown';
-import NewIndicator from './NewIndicator.astro';
-import { AccountStreak } from '../AccountStreak/AccountStreak';
-import { RoadmapDropdownMenu } from '../RoadmapDropdownMenu/RoadmapDropdownMenu';
+import { UpgradeProButton } from '../TopNavDropdowns/UpgradeProButton';
 ---
 
 <div class='bg-slate-900 py-5 text-white sm:py-8'>
@@ -20,32 +21,18 @@ import { RoadmapDropdownMenu } from '../RoadmapDropdownMenu/RoadmapDropdownMenu'
       </a>
 
       <a
-        href='/teams'
-        class='group relative inline text-blue-300 hover:text-white sm:hidden'
+        href='/ai'
+        class='group relative inline text-gray-400 hover:text-white sm:hidden'
       >
-        Teams
-
-        <span class='absolute -right-[11px] top-0'>
-          <span class='relative flex h-2 w-2'>
-            <span
-              class='absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75'
-            ></span>
-            <span class='relative inline-flex h-2 w-2 rounded-full bg-sky-500'
-            ></span>
-          </span>
-        </span>
+        AI Tutor
       </a>
 
       <!-- Desktop navigation items -->
       <div class='hidden gap-5 sm:flex sm:items-center'>
         <NavigationDropdown client:load />
-        <a href='/get-started' class='text-gray-400 hover:text-white'>
-          Start Here
-        </a>
         <RoadmapDropdownMenu client:load />
-        <a href='/teams' class='group relative text-gray-400 hover:text-white'>
-          Teams
-        </a>
+        <AIDropdownMenu client:load />
+        <UpgradeProButton client:only='react' />
       </div>
     </div>
 
@@ -59,7 +46,7 @@ import { RoadmapDropdownMenu } from '../RoadmapDropdownMenu/RoadmapDropdownMenu'
 
         <a
           data-guest-required
-          class='flex hidden h-8 w-28 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-700 px-4 py-2 text-sm font-medium text-white hover:from-blue-500 hover:to-blue-600'
+          class='flex hidden h-8 w-28 cursor-pointer items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-blue-700 px-4 py-2 text-sm font-medium text-white hover:from-blue-500 hover:to-blue-600'
           href='/signup'
         >
           <span>Sign Up</span>
@@ -78,12 +65,12 @@ import { RoadmapDropdownMenu } from '../RoadmapDropdownMenu/RoadmapDropdownMenu'
 
     <!-- Mobile Navigation Items -->
     <div
-      class='fixed bottom-0 left-0 right-0 top-0 z-40 flex hidden items-center bg-slate-900'
+      class='fixed top-0 right-0 bottom-0 left-0 z-40 flex hidden items-center bg-slate-900'
       data-mobile-nav
     >
       <button
         data-close-mobile-nav
-        class='absolute right-6 top-6 block cursor-pointer text-gray-400 hover:text-gray-50'
+        class='absolute top-6 right-6 block cursor-pointer text-gray-400 hover:text-gray-50'
         aria-label='Close Menu'
       >
         <Icon icon='close' />
@@ -95,11 +82,8 @@ import { RoadmapDropdownMenu } from '../RoadmapDropdownMenu/RoadmapDropdownMenu'
           </a>
         </li>
         <li>
-          <a
-            href='/best-practices'
-            class='text-xl hover:text-blue-300 md:text-lg'
-          >
-            Best Practices
+          <a href='/ai' class='text-xl hover:text-blue-300 md:text-lg'>
+            AI Tutor
           </a>
         </li>
         <li>
@@ -107,21 +91,11 @@ import { RoadmapDropdownMenu } from '../RoadmapDropdownMenu/RoadmapDropdownMenu'
             Guides
           </a>
         </li>
-        <li>
-          <a href='/videos' class='text-xl hover:text-blue-300 md:text-lg'>
-            Videos
-          </a>
-        </li>
 
         <!-- Links for logged in users -->
         <li data-auth-required class='hidden'>
           <a href='/account' class='text-xl hover:text-blue-300 md:text-lg'>
             Account
-          </a>
-        </li>
-        <li data-auth-required class='hidden'>
-          <a href='/team' class='text-xl hover:text-blue-300 md:text-lg'>
-            Teams
           </a>
         </li>
         <li data-auth-required class='hidden'>

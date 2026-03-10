@@ -1,11 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { useChat } from '@ai-sdk/react';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Ban,
+  FileText, HeartHandshake,
+  Star,
+  X,
+  Zap
+} from 'lucide-react';
 import { useKeydown } from '../../hooks/use-keydown';
 import { useLoadTopic } from '../../hooks/use-load-topic';
 import { useOutsideClick } from '../../hooks/use-outside-click';
+import { useToast } from '../../hooks/use-toast';
 import { useToggleTopic } from '../../hooks/use-toggle-topic';
+import { topicDetailAiChatTransport } from '../../lib/ai.ts';
+import { getUrlParams, parseUrl } from '../../lib/browser';
+import { cn } from '../../lib/classname.ts';
+import { lockBodyScroll } from '../../lib/dom.ts';
 import { httpGet } from '../../lib/http';
 import { isLoggedIn } from '../../lib/jwt';
+import { markdownToHtml, sanitizeMarkdown } from '../../lib/markdown';
+import { showLoginPopup } from '../../lib/popup';
 import type { ResourceType } from '../../lib/resource-progress';
 import {
   isTopicDone,
@@ -13,35 +29,30 @@ import {
   renderTopicProgress,
   updateResourceProgress as updateResourceProgressApi,
 } from '../../lib/resource-progress';
-import { pageProgressMessage, sponsorHidden } from '../../stores/page';
-import { TopicProgressButton } from './TopicProgressButton';
-import { showLoginPopup } from '../../lib/popup';
-import { useToast } from '../../hooks/use-toast';
+import { type AllowedRoadmapRenderer } from '../../lib/roadmap.ts';
+import { aiLimitOptions } from '../../queries/ai-course.ts';
+import { billingDetailsOptions } from '../../queries/billing.ts';
+import { roadmapTreeMappingOptions } from '../../queries/roadmap-tree.ts';
+import { pageProgressMessage } from '../../stores/page';
+import { queryClient } from '../../stores/query-client.ts';
+import { UpgradeAccountModal } from '../Billing/UpgradeAccountModal.tsx';
 import type {
   AllowedLinkTypes,
   RoadmapContentDocument,
 } from '../CustomRoadmap/CustomRoadmap';
-import { markdownToHtml, sanitizeMarkdown } from '../../lib/markdown';
-import { Ban, Coins, FileText, HeartHandshake, Star, X } from 'lucide-react';
-import { getUrlParams, parseUrl } from '../../lib/browser';
-import { Spinner } from '../ReactIcons/Spinner';
+import type { AIChatHistoryType } from '../GenerateCourse/AICourseLessonChat.tsx';
 import { GitHubIcon } from '../ReactIcons/GitHubIcon.tsx';
-import { GoogleIcon } from '../ReactIcons/GoogleIcon.tsx';
-import { YouTubeIcon } from '../ReactIcons/YouTubeIcon.tsx';
-import { resourceTitleFromId } from '../../lib/roadmap.ts';
-import { lockBodyScroll } from '../../lib/dom.ts';
-import { TopicDetailLink } from './TopicDetailLink.tsx';
-import { ResourceListSeparator } from './ResourceListSeparator.tsx';
+import { Spinner } from '../ReactIcons/Spinner';
+import { CreateCourseModal } from './CreateCourseModal.tsx';
 import { PaidResourceDisclaimer } from './PaidResourceDisclaimer.tsx';
-
-type TopicDetailProps = {
-  resourceId?: string;
-  resourceTitle?: string;
-  resourceType?: ResourceType;
-
-  isEmbed?: boolean;
-  canSubmitContribution: boolean;
-};
+import { ResourceListSeparator } from './ResourceListSeparator.tsx';
+import { TopicDetailAI } from './TopicDetailAI.tsx';
+import { TopicDetailLink } from './TopicDetailLink.tsx';
+import {
+  TopicDetailsTabs,
+  type AllowedTopicDetailsTabs,
+} from './TopicDetailsTabs.tsx';
+import { TopicProgressButton } from './TopicProgressButton.tsx';
 
 type PaidResourceType = {
   _id?: string;
@@ -52,6 +63,16 @@ type PaidResourceType = {
 };
 
 const paidResourcesCache: Record<string, PaidResourceType[]> = {};
+
+export const CLOSE_TOPIC_DETAIL_EVENT = 'close-topic-detail';
+
+export const defaultChatHistory: AIChatHistoryType[] = [
+  {
+    role: 'assistant',
+    content: 'Hey, I am your AI instructor. How can I help you today? 🤖',
+    isDefault: true,
+  },
+];
 
 async function fetchRoadmapPaidResources(roadmapId: string) {
   if (paidResourcesCache[roadmapId]) {
@@ -74,25 +95,59 @@ async function fetchRoadmapPaidResources(roadmapId: string) {
 
 const PAID_RESOURCE_DISCLAIMER_HIDDEN = 'paid-resource-disclaimer-hidden';
 
+type TopicDetailProps = {
+  resourceId?: string;
+  resourceType?: ResourceType;
+  renderer?: AllowedRoadmapRenderer;
+  defaultActiveTab?: AllowedTopicDetailsTabs;
+
+  hasUpgradeButtons?: boolean;
+
+  isEmbed?: boolean;
+  canSubmitContribution: boolean;
+
+  wrapperClassName?: string;
+  bodyClassName?: string;
+  overlayClassName?: string;
+  closeButtonClassName?: string;
+  onClose?: () => void;
+  shouldCloseOnBackdropClick?: boolean;
+  shouldCloseOnEscape?: boolean;
+};
+
 export function TopicDetail(props: TopicDetailProps) {
   const {
+    hasUpgradeButtons = true,
     canSubmitContribution,
     resourceId: defaultResourceId,
     isEmbed = false,
-    resourceTitle,
+    renderer = 'balsamiq',
+    wrapperClassName,
+    bodyClassName,
+    overlayClassName,
+    closeButtonClassName,
+    onClose,
+    shouldCloseOnBackdropClick = true,
+    shouldCloseOnEscape = true,
+    defaultActiveTab = 'content',
   } = props;
 
-  const [hasEnoughLinks, setHasEnoughLinks] = useState(false);
   const [contributionUrl, setContributionUrl] = useState('');
   const [isActive, setIsActive] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isTopicLoading, setIsTopicLoading] = useState(false);
   const [isContributing, setIsContributing] = useState(false);
   const [error, setError] = useState('');
   const [topicHtml, setTopicHtml] = useState('');
   const [hasContent, setHasContent] = useState(false);
   const [topicTitle, setTopicTitle] = useState('');
-  const [topicHtmlTitle, setTopicHtmlTitle] = useState('');
   const [links, setLinks] = useState<RoadmapContentDocument['links']>([]);
+  const [activeTab, setActiveTab] =
+    useState<AllowedTopicDetailsTabs>(defaultActiveTab);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isCustomResource, setIsCustomResource] = useState(false);
+
+  const [showSubjectSearchModal, setShowSubjectSearchModal] = useState(false);
+
   const toast = useToast();
 
   const [showPaidResourceDisclaimer, setShowPaidResourceDisclaimer] =
@@ -108,14 +163,66 @@ export function TopicDetail(props: TopicDetailProps) {
   const [resourceType, setResourceType] = useState<ResourceType>('roadmap');
   const [paidResources, setPaidResources] = useState<PaidResourceType[]>([]);
 
-  // Close the topic detail when user clicks outside the topic detail
-  useOutsideClick(topicRef, () => {
-    setIsActive(false);
+  const chatId = `${resourceType}-${resourceId}-${topicId}`;
+  const { messages, sendMessage, setMessages, status } = useChat({
+    id: chatId,
+    transport: topicDetailAiChatTransport,
   });
 
-  useKeydown('Escape', () => {
+  const sanitizedTopicId = topicId?.includes('@')
+    ? topicId?.split('@')?.[1]
+    : topicId;
+  const { data: roadmapTreeMapping, isLoading: isRoadmapTreeMappingLoading } =
+    useQuery(
+      {
+        ...roadmapTreeMappingOptions(resourceId),
+        select: (data) => {
+          const node = data.find(
+            (mapping) => mapping.nodeId === sanitizedTopicId,
+          );
+          return node;
+        },
+        enabled: !!sanitizedTopicId && !isCustomResource,
+      },
+      queryClient,
+    );
+  const { data: tokenUsage, isLoading: isTokenUsageLoading } = useQuery(
+    aiLimitOptions(),
+    queryClient,
+  );
+
+  const { data: userBillingDetails, isLoading: isBillingDetailsLoading } =
+    useQuery(billingDetailsOptions(), queryClient);
+
+  const isLimitExceeded = (tokenUsage?.used || 0) >= (tokenUsage?.limit || 0);
+  const isPaidUser = userBillingDetails?.status === 'active';
+
+  const isLoading =
+    isTopicLoading ||
+    isRoadmapTreeMappingLoading ||
+    isTokenUsageLoading ||
+    isBillingDetailsLoading;
+
+  const handleClose = () => {
+    onClose?.();
     setIsActive(false);
-  });
+    setIsContributing(false);
+    setShowUpgradeModal(false);
+    setActiveTab('content');
+    setShowSubjectSearchModal(false);
+    setMessages([]);
+
+    lockBodyScroll(false);
+
+    window.dispatchEvent(new Event(CLOSE_TOPIC_DETAIL_EVENT));
+  };
+
+  // Close the topic detail when user clicks outside the topic detail
+  useOutsideClick(
+    topicRef,
+    shouldCloseOnBackdropClick ? handleClose : undefined,
+  );
+  useKeydown('Escape', shouldCloseOnEscape ? handleClose : undefined);
 
   useEffect(() => {
     if (resourceType !== 'roadmap' || !defaultResourceId) {
@@ -173,13 +280,13 @@ export function TopicDetail(props: TopicDetailProps) {
   // Load the topic detail when the topic detail is active
   useLoadTopic(({ topicId, resourceType, resourceId, isCustomResource }) => {
     setError('');
-    setIsLoading(true);
+    setIsTopicLoading(true);
     setIsActive(true);
-    sponsorHidden.set(true);
 
     setTopicId(topicId);
     setResourceType(resourceType);
     setResourceId(resourceId);
+    setIsCustomResource(isCustomResource);
 
     const topicPartial = topicId.replaceAll(':', '/');
     let topicUrl =
@@ -209,7 +316,7 @@ export function TopicDetail(props: TopicDetailProps) {
       .then(({ response }) => {
         if (!response) {
           setError('Topic not found.');
-          setIsLoading(false);
+          setIsTopicLoading(false);
           return;
         }
         let topicHtml = '';
@@ -284,12 +391,15 @@ export function TopicDetail(props: TopicDetailProps) {
           }
 
           topicHtml = topicDom.body.innerHTML;
+          const topicHasContent = otherElems.length > 0;
 
           setLinks(listLinks);
-          setHasContent(otherElems.length > 0);
+          setHasContent(topicHasContent);
           setContributionUrl(contributionUrl);
-          setHasEnoughLinks(links.length >= 3);
-          setTopicHtmlTitle(titleElem?.textContent || '');
+
+          if (!topicHasContent && renderer === 'editor') {
+            setActiveTab('ai');
+          }
         } else {
           setLinks((response as RoadmapContentDocument)?.links || []);
           setTopicTitle((response as RoadmapContentDocument)?.title || '');
@@ -302,33 +412,25 @@ export function TopicDetail(props: TopicDetailProps) {
           topicHtml = markdownToHtml(sanitizedMarkdown, false);
         }
 
-        setIsLoading(false);
+        setIsTopicLoading(false);
         setTopicHtml(topicHtml);
       })
       .catch((err) => {
         setError('Something went wrong. Please try again later.');
-        setIsLoading(false);
+        setIsTopicLoading(false);
       });
   });
 
   useEffect(() => {
-    if (isActive) topicRef?.current?.focus();
-
-    lockBodyScroll(isActive);
+    if (isActive) {
+      lockBodyScroll(true);
+      topicRef?.current?.focus();
+    }
   }, [isActive]);
 
   if (!isActive) {
     return null;
   }
-
-  const resourceTitleForSearch = resourceTitle
-    ?.toLowerCase()
-    ?.replace(/\s+?roadmap/gi, '');
-  const googleSearchUrl = `https://www.google.com/search?q=${topicHtmlTitle?.toLowerCase()} guide for ${resourceTitleForSearch}`;
-  const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${topicHtmlTitle?.toLowerCase()} for ${resourceTitleForSearch}`;
-
-  const tnsLink =
-    'https://thenewstack.io/devops/?utm_source=roadmap.sh&utm_medium=Referral&utm_campaign=Topic';
 
   const paidResourcesForTopic = paidResources.filter((resource) => {
     const normalizedTopicId =
@@ -336,15 +438,36 @@ export function TopicDetail(props: TopicDetailProps) {
     return resource.topicIds.includes(normalizedTopicId);
   });
 
+  const shouldShowAiTab = !isCustomResource && resourceType === 'roadmap';
+  const subjects = roadmapTreeMapping?.subjects || [];
+  const guides = roadmapTreeMapping?.guides || [];
+  const hasSubjects = subjects.length > 0;
+  const hasGuides = guides.length > 0;
+
+  const hasDataCampResources = paidResources.some((resource) =>
+    resource.title.toLowerCase().includes('datacamp'),
+  );
+
   return (
-    <div className={'relative z-[90]'}>
+    <div className={cn('relative z-92', wrapperClassName)}>
       <div
         ref={topicRef}
         tabIndex={0}
-        className="fixed right-0 top-0 z-40 flex h-screen w-full flex-col overflow-y-auto bg-white p-4 focus:outline-0 sm:max-w-[600px] sm:p-6"
+        className={cn(
+          'fixed top-0 right-0 z-40 flex h-screen w-full flex-col overflow-y-auto bg-white p-4 focus:outline-0 sm:max-w-[600px] sm:p-6',
+          bodyClassName,
+        )}
       >
+        {showUpgradeModal && (
+          <UpgradeAccountModal onClose={() => setShowUpgradeModal(false)} />
+        )}
+
+        {showSubjectSearchModal && (
+          <CreateCourseModal onClose={() => setShowSubjectSearchModal(false)} />
+        )}
+
         {isLoading && (
-          <div className="flex h-full w-full items-center justify-center">
+          <div className="flex h-full w-full justify-center">
             <Spinner
               outerFill="#d1d5db"
               className="h-6 w-6 sm:h-8 sm:w-8"
@@ -356,246 +479,309 @@ export function TopicDetail(props: TopicDetailProps) {
 
         {!isContributing && !isLoading && !error && (
           <>
-            <div className="flex-1">
-              {/* Actions for the topic */}
-              <div className="mb-2">
-                {!isEmbed && (
-                  <TopicProgressButton
-                    topicId={
-                      topicId.indexOf('@') !== -1
-                        ? topicId.split('@')[1]
-                        : topicId
+            <div
+              className={cn('flex-1', {
+                'flex flex-col': activeTab === 'ai',
+              })}
+            >
+              <div className="flex justify-between">
+                {shouldShowAiTab && (
+                  <TopicDetailsTabs
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    hasAITutor={renderer === 'editor'}
+                  />
+                )}
+                <div
+                  className={cn('flex flex-grow justify-end gap-1', {
+                    'justify-between': !shouldShowAiTab,
+                  })}
+                >
+                  {!isEmbed && (
+                    <TopicProgressButton
+                      topicId={
+                        topicId.indexOf('@') !== -1
+                          ? topicId.split('@')[1]
+                          : topicId
+                      }
+                      dropdownClassName={
+                        !shouldShowAiTab ? 'left-0' : 'right-0'
+                      }
+                      resourceId={resourceId}
+                      resourceType={resourceType}
+                      onClose={() => null}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    id="close-topic"
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-lg bg-gray-200 px-1.5 py-1 text-xs text-black hover:bg-gray-300 hover:text-gray-900',
+                      closeButtonClassName,
+                    )}
+                    onClick={handleClose}
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              </div>
+
+              {activeTab === 'ai' && shouldShowAiTab && (
+                <TopicDetailAI
+                  resourceId={resourceId}
+                  resourceType={resourceType}
+                  topicId={topicId}
+                  messages={messages}
+                  setMessages={setMessages}
+                  status={status}
+                  sendMessage={sendMessage}
+                  hasUpgradeButtons={hasUpgradeButtons}
+                  onUpgrade={() => setShowUpgradeModal(true)}
+                  onLogin={() => {
+                    handleClose();
+                    showLoginPopup();
+                  }}
+                  onShowSubjectSearchModal={() => {
+                    if (!isLoggedIn()) {
+                      showLoginPopup();
+                      return;
                     }
-                    resourceId={resourceId}
-                    resourceType={resourceType}
-                    onClose={() => {
-                      setIsActive(false);
-                    }}
-                  />
-                )}
 
-                <button
-                  type="button"
-                  id="close-topic"
-                  className="absolute right-2.5 top-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900"
-                  onClick={() => {
-                    setIsActive(false);
+                    setShowSubjectSearchModal(true);
                   }}
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              {/* Topic Content */}
-              {hasContent ? (
-                <>
-                  <div className="prose prose-quoteless prose-h1:mb-2.5 prose-h1:mt-7 prose-h1:text-balance prose-h2:mb-3 prose-h2:mt-0 prose-h3:mb-[5px] prose-h3:mt-[10px] prose-p:mb-2 prose-p:mt-0 prose-blockquote:font-normal prose-blockquote:not-italic prose-blockquote:text-gray-700 prose-li:m-0 prose-li:mb-0.5">
-                    {topicTitle && <h1>{topicTitle}</h1>}
-                    <div
-                      id="topic-content"
-                      dangerouslySetInnerHTML={{ __html: topicHtml }}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  {!canSubmitContribution && (
-                    <div className="flex h-[calc(100%-38px)] flex-col items-center justify-center">
-                      <FileText className="h-16 w-16 text-gray-300" />
-                      <p className="mt-2 text-lg font-medium text-gray-500">
-                        Empty Content
-                      </p>
-                    </div>
-                  )}
-                  {canSubmitContribution && (
-                    <div className="mx-auto flex h-[calc(100%-38px)] max-w-[400px] flex-col items-center justify-center text-center">
-                      <HeartHandshake className="mb-2 h-16 w-16 text-gray-300" />
-                      <p className="text-lg font-semibold text-gray-900">
-                        Help us write this content
-                      </p>
-                      <p className="mb-3 mt-2 text-sm text-gray-500">
-                        Write a brief introduction to this topic and submit a
-                        link to a good article, podcast, video, or any other
-                        self-vetted resource that helped you understand this
-                        topic better.
-                      </p>
-                      <a
-                        href={contributionUrl}
-                        target={'_blank'}
-                        className="flex w-full items-center justify-center rounded-md bg-gray-800 p-2 text-sm text-white transition-colors hover:bg-black hover:text-white disabled:bg-green-200 disabled:text-black"
-                      >
-                        <GitHubIcon className="mr-2 inline-block h-4 w-4 text-white" />
-                        Help us Write this Content
-                      </a>
-                    </div>
-                  )}
-                </>
+                />
               )}
 
-              {links.length > 0 && (
+              {activeTab === 'content' && (
                 <>
-                  <ResourceListSeparator
-                    text="Free Resources"
-                    className="text-green-600"
-                    icon={HeartHandshake}
-                  />
-                  <ul className="ml-3 mt-4 space-y-1">
-                    {links.map((link) => {
-                      return (
-                        <li key={link.id}>
-                          <TopicDetailLink
-                            url={link.url}
-                            type={link.type}
-                            title={link.title}
-                            onClick={() => {
-                              // if it is one of our roadmaps, we want to track the click
-                              if (canSubmitContribution) {
-                                const parsedUrl = parseUrl(link.url);
-
-                                window.fireEvent({
-                                  category: 'TopicResourceClick',
-                                  action: `Click: ${parsedUrl.hostname}`,
-                                  label: `${resourceType} / ${resourceId} / ${topicId} / ${link.url}`,
-                                });
-                              }
-                            }}
-                          />
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </>
-              )}
-
-              {paidResourcesForTopic.length > 0 && (
-                <>
-                  <ResourceListSeparator text="Premium Resources" icon={Star} />
-
-                  <ul className="ml-3 mt-3 space-y-1">
-                    {paidResourcesForTopic.map((resource) => {
-                      return (
-                        <li key={resource._id}>
-                          <TopicDetailLink
-                            url={resource.url}
-                            type={resource.type as any}
-                            title={resource.title}
-                            isPaid={true}
-                          />
-                        </li>
-                      );
-                    })}
-                  </ul>
-
-                  {showPaidResourceDisclaimer && (
-                    <PaidResourceDisclaimer
-                      onClose={() => {
-                        localStorage.setItem(
-                          PAID_RESOURCE_DISCLAIMER_HIDDEN,
-                          'true',
-                        );
-                        setShowPaidResourceDisclaimer(false);
-                      }}
-                    />
-                  )}
-                </>
-              )}
-
-              {/* Contribution */}
-              {canSubmitContribution &&
-                !hasEnoughLinks &&
-                contributionUrl &&
-                hasContent && (
-                  <div className="mb-12 mt-3 border-t text-sm text-gray-400 sm:mt-12">
-                    <div className="mb-4 mt-3">
-                      <p className="">
-                        Find more resources using these pre-filled search
-                        queries:
-                      </p>
-                      <div className="mt-3 flex gap-2 text-gray-700">
-                        <a
-                          href={googleSearchUrl}
-                          target="_blank"
-                          className="flex items-center gap-2 rounded-md border border-gray-300 px-3 py-1.5 pl-2 text-xs hover:border-gray-700 hover:bg-gray-100"
-                        >
-                          <GoogleIcon className={'h-4 w-4'} />
-                          Google
-                        </a>
-                        <a
-                          href={youtubeSearchUrl}
-                          target="_blank"
-                          className="flex items-center gap-2 rounded-md border border-gray-300 px-3 py-1.5 pl-2 text-xs hover:border-gray-700 hover:bg-gray-100"
-                        >
-                          <YouTubeIcon className={'h-4 w-4 text-red-500'} />
-                          YouTube
-                        </a>
+                  {hasContent ? (
+                    <>
+                      <div className="prose prose-quoteless prose-h1:mb-2.5 prose-h1:mt-7 prose-h1:text-balance prose-h2:mb-3 prose-h2:mt-0 prose-h3:mb-[5px] prose-h3:mt-[10px] prose-p:mb-2 prose-p:mt-0 prose-blockquote:font-normal prose-blockquote:not-italic prose-blockquote:text-gray-700 prose-li:m-0 prose-li:mb-0.5">
+                        {topicTitle && <h1>{topicTitle}</h1>}
+                        <div
+                          id="topic-content"
+                          dangerouslySetInnerHTML={{ __html: topicHtml }}
+                        />
                       </div>
-                    </div>
+                    </>
+                  ) : (
+                    <>
+                      {!canSubmitContribution && (
+                        <div className="flex h-[calc(100%-38px)] flex-col items-center justify-center">
+                          <FileText className="h-16 w-16 text-gray-300" />
+                          <p className="mt-2 text-lg font-medium text-gray-500">
+                            Empty Content
+                          </p>
+                        </div>
+                      )}
+                      {canSubmitContribution && (
+                        <div className="mx-auto flex h-[calc(100%-38px)] max-w-[400px] flex-col items-center justify-center text-center">
+                          <HeartHandshake className="mb-2 h-16 w-16 text-gray-300" />
+                          <p className="text-lg font-semibold text-gray-900">
+                            Help us write this content
+                          </p>
+                          <p className="mt-2 mb-3 text-sm text-gray-500">
+                            Write a brief introduction to this topic and submit
+                            a link to a good article, podcast, video, or any
+                            other self-vetted resource that helped you
+                            understand this topic better.
+                          </p>
+                          <a
+                            href={contributionUrl}
+                            target={'_blank'}
+                            className="flex w-full items-center justify-center rounded-md bg-gray-800 p-2 text-sm text-white transition-colors hover:bg-black hover:text-white disabled:bg-green-200 disabled:text-black"
+                          >
+                            <GitHubIcon className="mr-2 inline-block h-4 w-4 text-white" />
+                            Help us Write this Content
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  )}
 
-                    <p className="mb-2 mt-2 leading-relaxed">
-                      This popup should be a brief introductory paragraph for
-                      the topic and a few links to good articles, videos, or any
-                      other self-vetted resources. Please consider submitting a
-                      PR to improve this content.
-                    </p>
-                    <a
-                      href={contributionUrl}
-                      target={'_blank'}
-                      className="flex w-full items-center justify-center rounded-md bg-gray-800 p-2 text-sm text-white transition-colors hover:bg-black hover:text-white disabled:bg-green-200 disabled:text-black"
-                    >
-                      <GitHubIcon className="mr-2 inline-block h-4 w-4 text-white" />
-                      Help us Improve this Content
-                    </a>
-                  </div>
-                )}
+                  {resourceId === 'ai-data-scientist' &&
+                    hasDataCampResources && (
+                      <div className="mt-5 rounded-md bg-yellow-100 px-4 py-3 text-sm text-gray-600">
+                        <p className="text-balance">
+                          Follow the resources listed on the roadmap or check
+                          out the premium courses by DataCamp listed below.
+                        </p>
+
+                        <p className="mt-3 text-balance">
+                          They also have an{' '}
+                          <a
+                            href="https://datacamp.pxf.io/POk5PY"
+                            className="font-medium text-blue-600 underline hover:text-blue-800"
+                            target="_blank"
+                          >
+                            Associate Data Scientist in Python
+                          </a>{' '}
+                          track that covers all the key data scientist skills in
+                          one place.
+                        </p>
+                      </div>
+                    )}
+
+                  {links.length > 0 && (
+                    <>
+                      <ResourceListSeparator
+                        text="Free Resources"
+                        className="text-green-600"
+                        icon={HeartHandshake}
+                      />
+                      <ul className="mt-4 ml-3 space-y-1">
+                        {links.map((link) => {
+                          return (
+                            <li key={link.id}>
+                              <TopicDetailLink
+                                url={link.url}
+                                type={link.type}
+                                title={link.title}
+                                onClick={() => {
+                                  // if it is one of our roadmaps, we want to track the click
+                                  if (canSubmitContribution) {
+                                    const parsedUrl = parseUrl(link.url);
+
+                                    window.fireEvent({
+                                      category: 'TopicResourceClick',
+                                      action: `Click: ${parsedUrl.hostname}`,
+                                      label: `${resourceType} / ${resourceId} / ${topicId} / ${link.url}`,
+                                    });
+                                  }
+                                }}
+                              />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </>
+                  )}
+
+                  {(hasSubjects || hasGuides) && (
+                    <>
+                      <ResourceListSeparator
+                        text="Your personalized AI tutor"
+                        className="text-blue-600"
+                        icon={Zap}
+                      />
+                      <ul className="mt-4 ml-3 flex flex-col flex-wrap gap-1 text-sm">
+                        {subjects.map((subject) => {
+                          return (
+                            <li key={subject}>
+                              <TopicDetailLink
+                                url={`/ai/course/search?term=${subject}&src=topic`}
+                                type="course"
+                                title={subject}
+                                onClick={(e) => {
+                                  if (!isLoggedIn()) {
+                                    e.preventDefault();
+                                    showLoginPopup();
+                                    return;
+                                  }
+
+                                  if (isLimitExceeded && !isPaidUser) {
+                                    e.preventDefault();
+                                    setShowUpgradeModal(true);
+                                    return;
+                                  }
+                                }}
+                              />
+                            </li>
+                          );
+                        })}
+                        {guides.map((guide) => {
+                          return (
+                            <li key={guide}>
+                              <TopicDetailLink
+                                url={`/ai/guide/search?term=${guide}&src=topic`}
+                                type="article"
+                                title={guide}
+                                onClick={(e) => {
+                                  if (!isLoggedIn()) {
+                                    e.preventDefault();
+                                    showLoginPopup();
+                                    return;
+                                  }
+
+                                  if (isLimitExceeded && !isPaidUser) {
+                                    e.preventDefault();
+                                    setShowUpgradeModal(true);
+                                    return;
+                                  }
+                                }}
+                              />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </>
+                  )}
+
+                  {paidResourcesForTopic.length > 0 && (
+                    <>
+                      <ResourceListSeparator
+                        text="Premium Resources"
+                        icon={Star}
+                      />
+
+                      <ul className="mt-3 ml-3 space-y-1">
+                        {paidResourcesForTopic.map((resource) => {
+                          return (
+                            <li key={resource._id}>
+                              <TopicDetailLink
+                                url={resource.url}
+                                type={resource.type as any}
+                                title={resource.title}
+                                isPaid={true}
+                              />
+                            </li>
+                          );
+                        })}
+                      </ul>
+
+                      {showPaidResourceDisclaimer && (
+                        <PaidResourceDisclaimer
+                          onClose={() => {
+                            localStorage.setItem(
+                              PAID_RESOURCE_DISCLAIMER_HIDDEN,
+                              'true',
+                            );
+                            setShowPaidResourceDisclaimer(false);
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
+                </>
+              )}
             </div>
-            {resourceId === 'devops' && (
-              <div className="mt-4">
-                <a
-                  href={tnsLink}
-                  target="_blank"
-                  className="hidden rounded-md border bg-gray-200 px-2 py-2 text-sm hover:bg-gray-300 sm:block"
-                >
-                  <span className="badge mr-1.5">Partner</span>
-                  Get the latest {resourceTitleFromId(resourceId)} news from our
-                  sister site{' '}
-                  <span className="font-medium underline underline-offset-1">
-                    TheNewStack.io
-                  </span>
-                </a>
 
-                <a
-                  href={tnsLink}
-                  className="hidden rounded-md border bg-gray-200 px-2 py-1.5 text-sm hover:bg-gray-300 min-[390px]:block sm:hidden"
-                  onClick={() => {
-                    window.fireEvent({
-                      category: 'PartnerClick',
-                      action: 'TNS Redirect',
-                      label: 'Roadmap Topic / TNS Link',
-                    });
-                  }}
-                >
-                  <span className="badge mr-1.5">Partner</span>
-                  Visit{' '}
-                  <span className="font-medium underline underline-offset-1">
-                    TheNewStack.io
-                  </span>{' '}
-                  for {resourceTitleFromId(resourceId)} news
-                </a>
-              </div>
-            )}
+            {canSubmitContribution &&
+              contributionUrl &&
+              activeTab === 'content' &&
+              hasContent && (
+                <div className="mt-4">
+                  <a
+                    href={contributionUrl}
+                    target="_blank"
+                    className="hidden items-center justify-center rounded-md px-2 py-2 text-sm transition-all hover:bg-gray-200 sm:flex"
+                  >
+                    <GitHubIcon className="mr-2 inline-block h-4 w-4 text-current" />
+                    Help us add resources to this topic
+                  </a>
+                </div>
+              )}
           </>
         )}
 
-        {/* Error */}
         {!isContributing && !isLoading && error && (
           <>
             <button
               type="button"
               id="close-topic"
-              className="absolute right-2.5 top-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900"
+              className="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900"
               onClick={() => {
-                setIsActive(false);
-                setIsContributing(false);
+                handleClose();
               }}
             >
               <X className="h-5 w-5" />
@@ -607,7 +793,9 @@ export function TopicDetail(props: TopicDetailProps) {
           </>
         )}
       </div>
-      <div className="fixed inset-0 z-30 bg-gray-900 bg-opacity-50 dark:bg-opacity-80"></div>
+      <div
+        className={cn('fixed inset-0 z-30 bg-gray-900/50', overlayClassName)}
+      ></div>
     </div>
   );
 }

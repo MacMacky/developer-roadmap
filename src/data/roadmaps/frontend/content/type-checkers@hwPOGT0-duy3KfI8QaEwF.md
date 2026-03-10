@@ -1,3 +1,9 @@
 # Type Checkers
 
-Type checker helps developers write code with fewer bugs by adding types to their code, trying to catch type errors within your code, and then removing them during compile time. Flow and TypeScript are two popular static type checkers for JavaScript.
+Type checkers analyze code for type-related errors before runtime, ensuring correct type usage and catching mistakes early. Examples: TypeScript, Flow (JavaScript), mypy (Python). Add static typing to dynamic languages, improving reliability, readability, and refactoring support for large projects.
+
+Visit the following resources to learn more:
+
+- [@official@Flow - Static Type Checker for JavaScript](https://flow.org/)
+- [@official@TypeScript](https://www.typescriptlang.org/)
+- [@official@Mypy - Static Type Checker for Python](https://mypy.readthedocs.io/en/stable/)

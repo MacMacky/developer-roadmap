@@ -1,9 +1,13 @@
 # Monitoring
 
-Monitoring involves continuously observing and tracking the performance, availability, and health of systems, applications, and infrastructure. It typically includes collecting and analyzing metrics, logs, and events to ensure systems are operating within desired parameters. Monitoring helps detect anomalies, identify potential issues before they escalate, and provides insights into system behavior. It often involves tools and platforms that offer dashboards, alerts, and reporting features to facilitate real-time visibility and proactive management. Effective monitoring is crucial for maintaining system reliability, performance, and for supporting incident response and troubleshooting.
+Monitoring involves continuously collecting, analyzing, and alerting on metrics, logs, and traces from applications and infrastructure. It helps detect issues early, understand performance bottlenecks, and ensure system reliability. Key tools include Prometheus for metrics collection, Grafana for dashboards and visualization, and distributed tracing tools like Jaeger or Zipkin.
 
-A few popular tools are Grafana, Sentry, Mixpanel, NewRelic.
+Visit the following resources to learn more:
 
-- [@article@Top monitoring tools 2024](https://thectoclub.com/tools/best-application-monitoring-software/)
+- [@official@Prometheus Documentation](https://prometheus.io/docs/introduction/overview/)
+- [@official@Grafana Documentation](https://grafana.com/docs/grafana/latest/)
+- [@article@Top Monitoring Tools](https://thectoclub.com/tools/best-application-monitoring-software/)
+- [@article@Monitoring Distributed Systems - Google SRE Book](https://sre.google/sre-book/monitoring-distributed-systems/)
+- [@video@Prometheus and Grafana Tutorial for Beginners](https://www.youtube.com/watch?v=9TJx7QTrTyo)
 - [@video@Grafana Explained in 5 Minutes](https://www.youtube.com/watch?v=lILY8eSspEo)
-- [@feed@daily.dev Monitoring Feed](https://app.daily.dev/tags/monitoring)
+- [@feed@Explore top posts about Monitoring](https://app.daily.dev/tags/monitoring?ref=roadmapsh)

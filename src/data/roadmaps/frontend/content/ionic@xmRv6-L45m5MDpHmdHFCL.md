@@ -1,10 +1,10 @@
 # Ionic
 
-Ionic framework is an open-source UI toolkit for building performant, high-quality mobile apps, desktop apps, and progressive web apps using web technologies such as HTML, CSS, and JavaScript.
+Ionic builds mobile and desktop apps using web technologies (HTML, CSS, JavaScript) with Angular, React, or Vue. Provides UI components and native device access. Wraps web apps for native deployment with platform-adaptive styling. Enables rapid cross-platform development.
 
 Visit the following resources to learn more:
 
-- [@article@Official Website](https://ionicframework.com/)
-- [@article@Official Getting Started to Ionic framework](https://ionicframework.com/docs/)
-- [@video@Ionic Framework 4 - Full Tutorial](https://www.youtube.com/watch?v=AvbuIRg8_Jg)
+- [@official@Ionic Framework Website](https://ionicframework.com/)
+- [@opensource@ionic-team/ionic-framework](https://github.com/ionic-team/ionic-framework)
+- [@article@Ionic 8 Announcement](https://ionic.io/blog/ionic-8-is-here)
 - [@feed@Explore top posts about Ionic](https://app.daily.dev/tags/ionic?ref=roadmapsh)

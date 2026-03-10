@@ -1,20 +1,23 @@
 import { ProjectCard } from './ProjectCard.tsx';
-import { HeartHandshake, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { cn } from '../../lib/classname.ts';
-import { useMemo, useState } from 'react';
-import {
-  projectDifficulties,
-  type ProjectDifficultyType,
-  type ProjectFileType,
-} from '../../lib/project.ts';
+import { useEffect, useMemo, useState } from 'react';
+
 import {
   deleteUrlParam,
   getUrlParams,
   setUrlParams,
 } from '../../lib/browser.ts';
+import { httpPost } from '../../lib/http.ts';
+import { isLoggedIn } from '../../lib/jwt.ts';
+import {
+  allowedOfficialProjectDifficulty,
+  type AllowedOfficialProjectDifficulty,
+  type OfficialProjectDocument,
+} from '../../queries/official-project.ts';
 
 type DifficultyButtonProps = {
-  difficulty: ProjectDifficultyType;
+  difficulty: AllowedOfficialProjectDifficulty;
   isActive?: boolean;
   onClick?: () => void;
 };
@@ -38,8 +41,13 @@ function DifficultyButton(props: DifficultyButtonProps) {
   );
 }
 
+export type ListProjectStatusesResponse = Record<
+  string,
+  'completed' | 'started'
+>;
+
 type ProjectsListProps = {
-  projects: ProjectFileType[];
+  projects: OfficialProjectDocument[];
   userCounts: Record<string, number>;
 };
 
@@ -48,36 +56,70 @@ export function ProjectsList(props: ProjectsListProps) {
 
   const { difficulty: urlDifficulty } = getUrlParams();
   const [difficulty, setDifficulty] = useState<
-    ProjectDifficultyType | undefined
+    AllowedOfficialProjectDifficulty | undefined
   >(urlDifficulty);
+  const [projectStatuses, setProjectStatuses] =
+    useState<ListProjectStatusesResponse>();
 
-  const projectsByDifficulty: Map<ProjectDifficultyType, ProjectFileType[]> =
-    useMemo(() => {
-      const result = new Map<ProjectDifficultyType, ProjectFileType[]>();
+  const loadProjectStatuses = async () => {
+    if (!isLoggedIn()) {
+      setProjectStatuses({});
+      return;
+    }
 
-      for (const project of projects) {
-        const difficulty = project.frontmatter.difficulty;
+    const projectIds = projects.map((project) => project.slug);
+    const { response, error } = await httpPost(
+      `${import.meta.env.PUBLIC_API_URL}/v1-list-project-statuses`,
+      {
+        projectIds,
+      },
+    );
 
-        if (!result.has(difficulty)) {
-          result.set(difficulty, []);
-        }
+    if (error || !response) {
+      console.error(error);
+      return;
+    }
 
-        result.get(difficulty)?.push(project);
+    setProjectStatuses(response);
+  };
+
+  const projectsByDifficulty: Map<
+    AllowedOfficialProjectDifficulty,
+    OfficialProjectDocument[]
+  > = useMemo(() => {
+    const result = new Map<
+      AllowedOfficialProjectDifficulty,
+      OfficialProjectDocument[]
+    >();
+
+    for (const project of projects) {
+      const difficulty = project.difficulty;
+
+      if (!result.has(difficulty)) {
+        result.set(difficulty, []);
       }
 
-      return result;
-    }, [projects]);
+      result.get(difficulty)?.push(project);
+    }
+
+    return result;
+  }, [projects]);
 
   const matchingProjects = difficulty
     ? projectsByDifficulty.get(difficulty) || []
     : projects;
 
+  useEffect(() => {
+    loadProjectStatuses().finally();
+  }, []);
+
   return (
     <div className="flex flex-col">
       <div className="my-2.5 flex items-center justify-between">
         <div className="flex flex-wrap gap-1">
-          {projectDifficulties.map((projectDifficulty) => (
+          {allowedOfficialProjectDifficulty.map((projectDifficulty) => (
             <DifficultyButton
+              key={projectDifficulty}
               onClick={() => {
                 setDifficulty(projectDifficulty);
                 setUrlParams({ difficulty: projectDifficulty });
@@ -86,6 +128,7 @@ export function ProjectsList(props: ProjectsListProps) {
               isActive={projectDifficulty === difficulty}
             />
           ))}
+
           {difficulty && (
             <button
               onClick={() => {
@@ -99,16 +142,6 @@ export function ProjectsList(props: ProjectsListProps) {
             </button>
           )}
         </div>
-        <a
-          href={
-            'https://github.com/kamranahmedse/developer-roadmap/issues/new?assignees=&labels=project+contribution&projects=&template=05-project-contribution.yml'
-          }
-          target={'_blank'}
-          className="hidden items-center gap-2 rounded-md border border-transparent px-2 py-0.5 text-sm underline underline-offset-2 hover:bg-black hover:text-white hover:no-underline sm:flex"
-        >
-          <HeartHandshake className="h-4 w-4" />
-          Submit a Project Idea
-        </a>
       </div>
       <div className="mb-24 grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
         {matchingProjects.length === 0 && (
@@ -119,18 +152,29 @@ export function ProjectsList(props: ProjectsListProps) {
 
         {matchingProjects
           .sort((project) => {
-            return project.frontmatter.difficulty === 'beginner'
+            return project.difficulty === 'beginner'
               ? -1
-              : project.frontmatter.difficulty === 'intermediate'
+              : project.difficulty === 'intermediate'
                 ? 0
                 : 1;
           })
           .sort((a, b) => {
-            return a.frontmatter.sort - b.frontmatter.sort;
+            return a.order - b.order;
           })
           .map((matchingProject) => {
-            const count = userCounts[matchingProject?.id] || 0;
-            return <ProjectCard project={matchingProject} userCount={count} />;
+            const count = userCounts[matchingProject?.slug] || 0;
+            return (
+              <ProjectCard
+                key={matchingProject.slug}
+                project={matchingProject}
+                userCount={count}
+                status={
+                  projectStatuses
+                    ? projectStatuses?.[matchingProject.slug] || 'none'
+                    : undefined
+                }
+              />
+            );
           })}
       </div>
     </div>
